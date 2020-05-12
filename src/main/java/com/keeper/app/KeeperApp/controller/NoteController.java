@@ -1,54 +1,50 @@
 package com.keeper.app.KeeperApp.controller;
 
-import com.keeper.app.KeeperApp.dto.NoteDto;
-import com.keeper.app.KeeperApp.entity.NoteEntity;
-import com.keeper.app.KeeperApp.model.request.NoteRequest;
-import com.keeper.app.KeeperApp.model.response.NoteResponse;
+import com.keeper.app.KeeperApp.entity.Note;
+import com.keeper.app.KeeperApp.api.request.NoteRequest;
+import com.keeper.app.KeeperApp.api.response.NoteResponse;
 import com.keeper.app.KeeperApp.service.NoteService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("/note")
+@RequestMapping("/notes")
 public class NoteController {
 
     @Autowired
     private NoteService noteService;
 
-    @GetMapping
-    public List<NoteResponse> getNote(){
-        List<NoteResponse> returnValue = new ArrayList<>();
+    @GetMapping("/all")
+    public ResponseEntity<?> getAll() {
 
-        List<NoteDto> noteDtos = noteService.getAllNotes();
-        for(NoteDto noteDto : noteDtos){
-            NoteResponse noteResponse = new NoteResponse();
-            BeanUtils.copyProperties(noteDto,noteResponse);
-            returnValue.add(noteResponse);
-        }
-
-        return returnValue;
+        List<NoteResponse> notesResponse = noteService.getAll().stream().map(Note::toNoteResponse)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(notesResponse, OK);
     }
 
-    @PostMapping
-    public NoteResponse addNote(@RequestBody NoteRequest noteRequest){
-        NoteResponse returnValue = new NoteResponse();
-
-        NoteDto noteDto = new NoteDto();
-        BeanUtils.copyProperties(noteRequest,noteDto);
-
-        NoteDto  createdNote = noteService.createNote(noteDto);
-        BeanUtils.copyProperties(createdNote,returnValue);
-
-        return returnValue;
+    @PostMapping("/add")
+    public ResponseEntity<?> add(@RequestBody NoteRequest noteRequest) {
+        Note note = noteService.add(noteRequest.toNote());
+        return new ResponseEntity<>(note.toNoteResponse(), CREATED);
     }
 
-    @DeleteMapping
-    public void deleteNote(@RequestParam int id){
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> delete(@PathVariable(value = "id") long id) {
 
-        noteService.deleteNode(id);
+        noteService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
