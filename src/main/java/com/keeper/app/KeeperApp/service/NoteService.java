@@ -1,16 +1,29 @@
 package com.keeper.app.KeeperApp.service;
 
-import com.keeper.app.KeeperApp.dto.NoteDto;
-import com.keeper.app.KeeperApp.entity.NoteEntity;
+import com.keeper.app.KeeperApp.entity.Note;
+import com.keeper.app.KeeperApp.repository.NoteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-public interface NoteService {
+@Service
+public class NoteService {
 
-    public List<NoteDto> getAllNotes();
+    @Autowired
+    private NoteRepository noteRepository;
 
-    public NoteDto createNote(NoteDto noteDto);
+    public List<Note> getAll() {
+        return noteRepository.findAll();
+    }
 
-    public void deleteNode(int id);
+    public Note add(Note note) {
 
+        return noteRepository.save(note);
+    }
+
+    public void delete(long id) {
+
+        noteRepository.deleteById(id);
+    }
 }
