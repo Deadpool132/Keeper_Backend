@@ -1,13 +1,14 @@
 package com.keeper.app.KeeperApp.controller;
 
-import com.keeper.app.KeeperApp.entity.Note;
 import com.keeper.app.KeeperApp.api.request.NoteRequest;
 import com.keeper.app.KeeperApp.api.response.NoteResponse;
+import com.keeper.app.KeeperApp.entity.Note;
 import com.keeper.app.KeeperApp.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,6 +34,13 @@ public class NoteController {
         List<NoteResponse> notesResponse = noteService.getAll().stream().map(Note::toNoteResponse)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(notesResponse, OK);
+    }
+
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<?> update(@PathVariable(value = "id") long id,
+                                    @RequestBody NoteRequest noteRequest) {
+        Note updatedNote = noteService.update(id, noteRequest.toNote());
+        return new ResponseEntity<>(updatedNote.toNoteResponse(), OK);
     }
 
     @PostMapping("/add")

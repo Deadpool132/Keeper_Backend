@@ -20,7 +20,7 @@ public class NoteRequest {
     }
 
     public Note toNote() {
-        return new Note(this.getTitle(), this.getContent());
+        return new Note.Builder().withTitle(title).withContent(content).build();
     }
 
     public String getTitle() {

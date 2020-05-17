@@ -1,8 +1,8 @@
 package com.keeper.app.KeeperApp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.keeper.app.KeeperApp.entity.Note;
 import com.keeper.app.KeeperApp.api.request.NoteRequest;
+import com.keeper.app.KeeperApp.entity.Note;
 import com.keeper.app.KeeperApp.repository.NoteRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -76,5 +77,19 @@ class NoteControllerTest {
         this.mockMvc.perform(delete("/notes/delete/{id}", note.getId())).andDo(print())
                 .andExpect(status().isNoContent());
         assertEquals(noteRepository.count(), 0);
+    }
+
+    @Test
+    void update_a_note() throws Exception {
+        NoteRequest noteRequest = new NoteRequest("travelling", "is new cool");
+        Note savedNote = noteRepository.save(noteRequest.toNote());
+        NoteRequest updatedNoteRequest = new NoteRequest("travelling", "is the new cool");
+        String json = objectMapper.writeValueAsString(updatedNoteRequest);
+        this.mockMvc.perform(patch("/notes/update/{id}", savedNote.getId())
+                                     .content(json).accept(MediaType.APPLICATION_JSON)
+                                     .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").value("is the new cool"));
     }
 }
