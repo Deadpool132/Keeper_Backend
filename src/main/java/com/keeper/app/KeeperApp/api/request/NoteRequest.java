@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 public class NoteRequest {
 
+
     @NotNull
     private String title;
     @NotNull

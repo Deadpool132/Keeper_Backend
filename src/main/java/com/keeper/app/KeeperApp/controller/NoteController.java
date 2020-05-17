@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -26,6 +27,12 @@ public class NoteController {
 
     @Autowired
     private NoteService noteService;
+
+    @GetMapping("/get/{id}")
+    public ResponseEntity<?> getById(@PathVariable(value = "id") long id){
+        Optional<Note> noteResponse = noteService.getById(id);
+        return new ResponseEntity<>(noteResponse, OK);
+    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAll() {
